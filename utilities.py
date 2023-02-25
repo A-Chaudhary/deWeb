@@ -23,8 +23,8 @@ def unzip_webpage(name_of_zip, destination_path):
 if __name__ == "__main__":
     dir_path = "test_webpage"
     destination_path = "output_test_webpage"
+    intermediate_zip_name = "intermediate.zip"
     zip_name = zip_webpage("munde",dir_path)
     encoded_bytestring = encode_webpage(zip_name)
-    print("Encoded bytestring", encoded_bytestring)
-    decoded_webpage("created_zip.zip",encoded_bytestring)
-    unzip_webpage("created_zip.zip",destination_path)    
+    decoded_webpage(intermediate_zip_name,encoded_bytestring)
+    unzip_webpage(intermediate_zip_name,destination_path)    
