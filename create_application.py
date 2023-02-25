@@ -2,6 +2,8 @@ from pyteal import *
 from beaker import sandbox
 from base64 import b64decode
 import algosdk
+from algosdk import transaction
+
 from algosdk.transaction import ApplicationCreateTxn, ApplicationCallTxn, StateSchema, wait_for_confirmation
 
 client = sandbox.get_algod_client()
@@ -48,7 +50,8 @@ txn = ApplicationCreateTxn(
     boxes=[(0, b"testbox")]
 )
 
-print(txn)
+print(accounts[0].address)
+
 
 signedTxn = txn.sign(signer.private_key)
 txid = client.send_transaction(signedTxn)
@@ -56,15 +59,27 @@ response = wait_for_confirmation(client, signedTxn.get_txid(), 4)
 print(f"Created App with id: {response['application-index']}  in tx: {txid}")
 
 app_id = response['application-index']
+
+app_info = client.application_info(app_id)
+app_address = app_info["params"]["creator"]
+app_address = algosdk.logic.get_application_address(app_id)
+
+unsigned_txn = transaction.PaymentTxn(accounts[0].address, client.suggested_params(), app_address, 200000, None, None)
+signed_txn = unsigned_txn.sign(accounts[0].private_key)
+txid = client.send_transaction(signed_txn)
+confirmed_txn = transaction.wait_for_confirmation(client, txid, 4)  
+
+
+
 txn = ApplicationCallTxn(
     sender=accounts[0].address,
     sp=client.suggested_params(),
     index=app_id,
     on_complete=algosdk.transaction.OnComplete.NoOpOC,
-    app_args=[5],   
     boxes=[(0, b"testbox")]
 )
-
 signedTxn = txn.sign(accounts[0].private_key)
 txid = client.send_transaction(signedTxn)
 response = wait_for_confirmation(client, signedTxn.get_txid(), 4)
+
+
