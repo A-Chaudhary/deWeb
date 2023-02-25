@@ -1,6 +1,5 @@
 from algosdk import account, mnemonic
 from algosdk.v2client import algod
-import generate_keypair
 import json, base64
 
 from algosdk import transaction
@@ -52,7 +51,7 @@ def submit_transction(algod_client, signed_txn, amount, params, my_address, acco
 
     # wait for confirmation 
     try:
-        confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)  
+        confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)
     except Exception as err:
         print(err)
         return
