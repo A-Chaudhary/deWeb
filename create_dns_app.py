@@ -11,17 +11,21 @@ accounts = sandbox.get_accounts()
 
 def approval_program():
     number = Bytes("number")
+    test = Txn.application_args[0]
     init = Seq(
         [
             App.globalPut(number, Int(0)), Approve()
         ]
     )
-    create = Seq(
-        Pop(App.box_create(Bytes("testbox"), Int(100))), Approve()
+    create = Seq([
+        App.localPut(Txn.sender(), Bytes("txn_id"), test), Approve()
+        ]
     )
+    
     program = Cond(
         [Txn.application_id() == Int(0), init],
         [Txn.on_completion() == OnComplete.NoOp, create],
+        [Txn.on_completion() == OnComplete.OptIn, Approve()],
     )
     return compileTeal(program, mode=Mode.Application, version=8)
 
@@ -46,17 +50,15 @@ txn = ApplicationCreateTxn(
     approval_program=compile_program(client, approval_program()),
     clear_program=compile_program(client, clear_state_program),
     global_schema=StateSchema(num_uints=1, num_byte_slices=1),
-    local_schema=StateSchema(num_uints=0, num_byte_slices=0),
-    boxes=[(0, b"testbox")]
+    local_schema=StateSchema(num_uints=0, num_byte_slices=1),
 )
 
-print(accounts[0].address)
 
 
 signedTxn = txn.sign(signer.private_key)
 txid = client.send_transaction(signedTxn)
 response = wait_for_confirmation(client, signedTxn.get_txid(), 4)
-print(f"Created App with id: {response['application-index']}  in tx: {txid}")
+print(f"DNS APPLICATION ID IS: {response['application-index']}")
 
 app_id = response['application-index']
 
@@ -71,15 +73,5 @@ confirmed_txn = transaction.wait_for_confirmation(client, txid, 4)
 
 
 
-txn = ApplicationCallTxn(
-    sender=accounts[0].address,
-    sp=client.suggested_params(),
-    index=app_id,
-    on_complete=algosdk.transaction.OnComplete.NoOpOC,
-    boxes=[(0, b"testbox")]
-)
-signedTxn = txn.sign(accounts[0].private_key)
-txid = client.send_transaction(signedTxn)
-response = wait_for_confirmation(client, signedTxn.get_txid(), 4)
 
 
