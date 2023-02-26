@@ -36,15 +36,15 @@ def approval_program():
 def clear_state_program():
     return Int(0)     
 
-domain = input("Enter domain name: ")
-logic_sig_teal = compileTeal(ValidateRecord(domain), Mode.Signature, version=5)
+def get_domain_tx(domain):
+    logic_sig_teal = compileTeal(ValidateRecord(domain), Mode.Signature, version=5)
 
-compiled_logic_sig_teal = compile_program(algod_client, logic_sig_teal)
+    compiled_logic_sig_teal = compile_program(algod_client, logic_sig_teal)
 
-lsig = LogicSigAccount(compiled_logic_sig_teal)
+    lsig = LogicSigAccount(compiled_logic_sig_teal)
 
 
-# RETRIEVE DNS
-results = algod_client.account_info(lsig.address())
-local_state = results
-print(base64.b64decode(local_state['apps-local-state'][0]['key-value'][0]['value']['bytes']).decode())
+    # RETRIEVE DNS
+    results = algod_client.account_info(lsig.address())
+    local_state = results
+    return base64.b64decode(local_state['apps-local-state'][0]['key-value'][0]['value']['bytes']).decode()

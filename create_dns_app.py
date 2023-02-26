@@ -42,7 +42,7 @@ clear_state_program = compileTeal(
     version=8
 )
 
-signer = accounts[0]
+signer = accounts[1]
 txn = ApplicationCreateTxn(
     sender=signer.address,
     sp=client.suggested_params(),
@@ -66,10 +66,6 @@ app_info = client.application_info(app_id)
 app_address = app_info["params"]["creator"]
 app_address = algosdk.logic.get_application_address(app_id)
 
-unsigned_txn = transaction.PaymentTxn(accounts[0].address, client.suggested_params(), app_address, 200000, None, None)
-signed_txn = unsigned_txn.sign(accounts[0].private_key)
-txid = client.send_transaction(signed_txn)
-confirmed_txn = transaction.wait_for_confirmation(client, txid, 4)  
 
 
 

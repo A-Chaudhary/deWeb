@@ -7,6 +7,9 @@ from algosdk.transaction import ApplicationCreateTxn, ApplicationCallTxn, StateS
 import algosdk
 from algosdk import transaction
 
+from utilities import zip_webpage, encode_webpage
+from beaker import sandbox
+
 
 
 def compile_program(client, source_code):
@@ -44,15 +47,26 @@ compiled_logic_sig_teal = compile_program(algod_client, logic_sig_teal)
 
 lsig = LogicSigAccount(compiled_logic_sig_teal)
 app_id = input("ENTER DNS APPLICATION ID: ")
-ntxid = input("ENTER TX ID: ")
 
 accounts = sandbox.get_accounts()
-account = accounts[0]
+account = accounts[1]
 
-unsigned_txn = transaction.PaymentTxn(account.address, algod_client.suggested_params(), lsig.address(), 200000, None, None)
+unsigned_txn = transaction.PaymentTxn(account.address, algod_client.suggested_params(), lsig.address(), 1000000, None, None)
 signed_txn = unsigned_txn.sign(account.private_key)
 txid = algod_client.send_transaction(signed_txn)
 confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)  
+
+
+INTERMEDIATE = "intermediate.zip"
+zipped = zip_webpage(INTERMEDIATE, "input")
+binarized_zip =  encode_webpage(zipped)
+
+
+unsigned_txn = transaction.PaymentTxn(account.address, algod_client.suggested_params(), lsig.address(), 1, None, binarized_zip)
+signed_txn = unsigned_txn.sign(account.private_key)
+txid = algod_client.send_transaction(signed_txn)
+confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)  
+
 
 # Creating an optin txn
 optin_txn_unsigned = algosdk.transaction.ApplicationOptInTxn(lsig.address(), algod_client.suggested_params(), app_id)
@@ -69,7 +83,7 @@ txn = ApplicationCallTxn(
     sender=lsig.address(),
     sp=algod_client.suggested_params(),
     index=app_id,
-    app_args=[ntxid],
+    app_args=[txid],
     on_complete=algosdk.transaction.OnComplete.NoOpOC,
 )
 signedTxn = algosdk.transaction.LogicSigTransaction(txn, lsig)
@@ -78,3 +92,4 @@ txid = algod_client.send_transaction(signedTxn)
 response = wait_for_confirmation(algod_client, signedTxn.get_txid(), 4)
 
 results = algod_client.application_info(app_id)
+

@@ -1,0 +1,33 @@
+body {
+background-color:#003865;
+margin: 0px;
+}
+.header {
+text-align: center;
+background-color:#FFFFFF;
+font-size: 36;
+color: #003865;
+margin-top:0px;
+max-width: 100% ;
+margin-left: auto;
+margin-right: auto;
+}
+.header-items {
+margin-top:0px;
+padding-top:10px;
+padding-bottom:10px;
+margin-left:30px;
+}
+img {
+width:35px;
+position:relative;
+left:10px;
+}
+ul {
+margin-right:8%;
+list-style-position:inside;
+}
+.content {
+color: #9BCBEB;
+text-align:center;
+}
