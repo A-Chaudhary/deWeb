@@ -36,6 +36,7 @@ def approval_program():
 def clear_state_program():
     return Int(0)     
 
+
 logic_sig_teal = compileTeal(ValidateRecord("ans"), Mode.Signature, version=5)
 
 compiled_logic_sig_teal = compile_program(algod_client, logic_sig_teal)

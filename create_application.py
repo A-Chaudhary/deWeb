@@ -1,5 +1,5 @@
 from pyteal import *
-from beaker import sandbox
+from beaker import *
 from base64 import b64decode
 import algosdk
 from algosdk import transaction
@@ -25,12 +25,9 @@ def approval_program():
     )
     return compileTeal(program, mode=Mode.Application, version=8)
 
-
 def compile_program(client, source_code):
     compile_response = client.compile(source_code)
     return b64decode(compile_response['result'])
-
-
 
 clear_state_program = compileTeal(
     Approve(),
@@ -52,7 +49,6 @@ txn = ApplicationCreateTxn(
 
 print(accounts[0].address)
 
-
 signedTxn = txn.sign(signer.private_key)
 txid = client.send_transaction(signedTxn)
 response = wait_for_confirmation(client, signedTxn.get_txid(), 4)
@@ -69,8 +65,6 @@ signed_txn = unsigned_txn.sign(accounts[0].private_key)
 txid = client.send_transaction(signed_txn)
 confirmed_txn = transaction.wait_for_confirmation(client, txid, 4)  
 
-
-
 txn = ApplicationCallTxn(
     sender=accounts[0].address,
     sp=client.suggested_params(),
@@ -81,5 +75,3 @@ txn = ApplicationCallTxn(
 signedTxn = txn.sign(accounts[0].private_key)
 txid = client.send_transaction(signedTxn)
 response = wait_for_confirmation(client, signedTxn.get_txid(), 4)
-
-
