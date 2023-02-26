@@ -93,3 +93,5 @@ response = wait_for_confirmation(algod_client, signedTxn.get_txid(), 4)
 
 results = algod_client.application_info(app_id)
 
+print("Successfully generated logicsig for domain, opted into DNS smart contract")
+print("Successfully added website files to blockchain transaction and stored transaction ID in DNS smart contract local store")

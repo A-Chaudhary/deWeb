@@ -67,7 +67,4 @@ app_address = app_info["params"]["creator"]
 app_address = algosdk.logic.get_application_address(app_id)
 
 
-
-
-
-
+print("Successfully created main DNS smart contract")
