@@ -1,12 +1,16 @@
 from algosdk import account, mnemonic
 from algosdk.v2client import algod
+import generate_keypair
 import json, base64
+
 from algosdk import transaction
 from algosdk import constants
+
 
 ADDRESS = "4U5ORBQYAKHPRQXP3Z2CKPVB2XZFRFUQGD5F4S23VHB6RB3JCZDXEHFY6E"
 PRIVATE_KEY = "YRq1VZmyteqrT6o+LzPfyIWv0E/vV76OT6+FU+ZcamrlOuiGGAKO+MLv3nQlPqHV8liWkDD6XktbqcPoh2kWRw=="
 PASSPHRASE = "equip stamp print civil hidden wide later prevent treat smile hurdle frame gallery vintage kidney fitness style dilemma stumble debate smile now fashion about hood"
+
 
 def generate_algorand_keypair():
     private_key, address = account.generate_account()
@@ -27,13 +31,13 @@ def check_balance(algod_client):
     print("Account balance: {} microAlgos".format(account_info.get('amount')) + "\n")
     return account_info
 
-def build_transaction(algod_client, private_key, my_address, byte_string):
+def build_transaction(algod_client, private_key, my_address):
     params = algod_client.suggested_params()
     # comment out the next two (2) lines to use suggested fees
     params.flat_fee = True
     params.fee = constants.MIN_TXN_FEE 
     receiver = "HZ57J3K46JIJXILONBBZOHX6BKPXEM2VVXNRFSUED6DKFD5ZD24PMJ3MVA"
-    note = byte_string
+    note = "Hello World".encode()
     amount = 1000000
     unsigned_txn = transaction.PaymentTxn(my_address, params, receiver, amount, None, note)
     signed_txn = unsigned_txn.sign(private_key)
@@ -48,7 +52,7 @@ def submit_transction(algod_client, signed_txn, amount, params, my_address, acco
 
     # wait for confirmation 
     try:
-        confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)
+        confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)  
     except Exception as err:
         print(err)
         return
@@ -64,10 +68,10 @@ def submit_transction(algod_client, signed_txn, amount, params, my_address, acco
     print("Final Account balance: {} microAlgos".format(account_info.get('amount')) + "\n")
 
 
-def submit_tx(byte_string):
+def submit_tx():
     algod_client = connect_to_client()
     account_info = check_balance(algod_client = algod_client)
-    signed_txn, amount, params = build_transaction(algod_client, PRIVATE_KEY, ADDRESS, byte_string)
+    signed_txn, amount, params = build_transaction(algod_client, PRIVATE_KEY, ADDRESS)
     submit_transction(algod_client, signed_txn, amount, params, ADDRESS, account_info)
 
 
